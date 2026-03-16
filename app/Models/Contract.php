@@ -62,6 +62,45 @@ class Contract extends Model
         return true;
     }
 
+    // Método para añadir prórroga
+    public function addExtension($type, $data)
+    {
+        // Verificar que el contrato puede tener prórrogas
+        if ($this->status !== 'Activo') {
+            throw new InvalidArgumentException('No se pueden añadir prórrogas a un contrato que no está activo.');
+        }
+
+        if (!in_array($this->contract_type, ['Fijo', 'Prestación de Servicios'])) {
+            throw new InvalidArgumentException('Solo los contratos de tipo Fijo o Prestación de Servicios pueden tener prórrogas.');
+        }
+
+        // Crear la prórroga
+        $extension = $this->extensions()->create([
+            'extension_type' => $type,
+            'new_end_date' => $data['new_end_date'] ?? null,
+            'additional_value' => $data['additional_value'] ?? null,
+            'description' => $data['description'] ?? null
+        ]);
+
+        // Si es prórroga de tiempo, actualizar la fecha de fin del contrato
+        if ($type === 'Tiempo' && isset($data['new_end_date'])) {
+            $this->update(['end_date' => $data['new_end_date']]);
+        }
+
+        // Si es prórroga de valor, actualizar el salario
+        if ($type === 'Valor' && isset($data['additional_value'])) {
+            $this->update(['salary' => $this->salary + $data['additional_value']]);
+        }
+
+        return $extension;
+    }
+
+    // Relación con Extensiones
+    public function extensions()
+    {
+        return $this->hasMany(ContractExtension::class);
+    }
+
     // Relación con Collaborator
     public function collaborator()
     {

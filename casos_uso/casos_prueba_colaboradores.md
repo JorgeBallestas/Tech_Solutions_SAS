@@ -4,7 +4,7 @@
 
 ## 1. ID del Caso de Prueba
 
-CP-COL-001
+**CP-COL-001**
 
 ## 2. Título de la Prueba
 
