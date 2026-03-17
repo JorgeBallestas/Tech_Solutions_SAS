@@ -48,7 +48,7 @@ Esta prueba verifica que un usuario autenticado pueda crear un nuevo colaborador
 
 ## 9. Resultado Real
 
-**(Para ser completado durante la ejecución)**
+*(Para ser completado durante la ejecución)*
 
 ## 10. Estado
 
@@ -108,7 +108,7 @@ Esta prueba verifica que el sistema no permita crear un colaborador con un núme
 
 ## 9. Resultado Real
 
-**(Para ser completado durante la ejecución)**
+*(Para ser completado durante la ejecución)*
 
 ## 10. Estado
 
@@ -157,7 +157,7 @@ Esta prueba verifica que un usuario autenticado pueda actualizar los datos de un
 
 ## 9. Resultado Real
 
-**(Para ser completado durante la ejecución)**
+*(Para ser completado durante la ejecución)*
 
 ## 10. Estado
 
@@ -205,7 +205,7 @@ No aplica.
 
 ## 9. Resultado Real
 
-**(Para ser completado durante la ejecución)**
+*(Para ser completado durante la ejecución)*
 
 ## 10. Estado
 
@@ -253,7 +253,7 @@ Esta prueba verifica que un usuario autenticado pueda eliminar o desactivar un c
 
 ## 9. Resultado Real
 
-**(Para ser completado durante la ejecución)**
+*(Para ser completado durante la ejecución)*
 
 ## 10. Estado
 

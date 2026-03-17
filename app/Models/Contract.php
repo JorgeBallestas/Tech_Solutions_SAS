@@ -6,7 +6,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
 
 class Contract extends Model
@@ -62,7 +61,9 @@ class Contract extends Model
         return true;
     }
 
-    // Método para añadir prórroga
+    /**
+     * MÉTODO PARA PRÓRROGAS (CP-003)
+     */
     public function addExtension($type, $data)
     {
         // Verificar que el contrato puede tener prórrogas
@@ -95,10 +96,47 @@ class Contract extends Model
         return $extension;
     }
 
-    // Relación con Extensiones
+    /**
+     * MÉTODO PARA TERMINACIÓN (CP-004)
+     */
+    public function terminate($terminationDate, $reason)
+    {
+        // Verificar que el contrato está activo
+        if ($this->status !== 'Activo') {
+            throw new InvalidArgumentException('Solo se pueden terminar contratos activos.');
+        }
+
+        // Verificar que la fecha de terminación no sea anterior a la fecha de inicio
+        if ($terminationDate < $this->start_date) {
+            throw new InvalidArgumentException('La fecha de terminación no puede ser anterior a la fecha de inicio del contrato.');
+        }
+
+        // Crear el registro de terminación
+        $termination = $this->termination()->create([
+            'termination_date' => $terminationDate,
+            'reason' => $reason
+        ]);
+
+        // Actualizar el estado del contrato
+        $this->update(['status' => 'Terminado']);
+
+        return $termination;
+    }
+
+    /**
+     * RELACIONES
+     */
+    
+    // Relación con Extensiones (una prórroga puede tener muchas extensiones)
     public function extensions()
     {
         return $this->hasMany(ContractExtension::class);
+    }
+
+    // Relación con Terminación (una prórroga tiene UNA terminación)
+    public function termination()
+    {
+        return $this->hasOne(ContractTermination::class);
     }
 
     // Relación con Collaborator
