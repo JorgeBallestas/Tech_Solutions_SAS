@@ -3,19 +3,23 @@
 ## Descripción
 Este repositorio contiene la implementación del núcleo lógico del Sistema de Gestión de RRHH para Tech Solutions SAS. El proyecto ha sido desarrollado siguiendo estrictamente la metodología TDD (Test-Driven Development) y todos los tests están actualmente en verde.
 
-El desarrollo se centra exclusivamente en la **lógica de negocio del backend** (modelos, servicios y pruebas), sin interfaz gráfica de usuario.
+El desarrollo se centra exclusivamente en la **lógica de negocio del backend** (modelos, servicios y pruebas), sin interfaz gráfica de usuario, tal como se especifica en el [Documento de Requisitos del Producto (PRD)](index.html).
 
-Actualmente se han completado tres paquetes:
+Actualmente se han completado los cuatro paquetes del sistema:
 - **Paquete 1:** Gestión de Colaboradores (CP-001)
 - **Paquete 2:** Gestión de Contratos (CP-002)
 - **Paquete 3:** Gestión de Prórrogas (CP-003)
+- **Paquete 4:** Terminación de Contratos (CP-004)
+
 
 ## Stack Tecnológico
 - **Framework Backend:** Laravel 11
 - **Lenguaje:** PHP 8.2+
 - **Base de Datos:** MySQL 8.0+
 - **Pruebas:** PHPUnit
+- **Autenticación:** Laravel Breeze
 - **Roles y Permisos:** `spatie/laravel-permission`
+- **Servidor Web:** Nginx / Apache
 
 ## Casos de Prueba Implementados
 
@@ -46,30 +50,43 @@ Actualmente se han completado tres paquetes:
 | CP-003-02 | Verificar que la fecha de finalización del contrato se actualiza correctamente al añadir una prórroga de tiempo | Pasa |
 | CP-003-03 | Verificar que el sistema rechaza una prórroga para un contrato con estado "Terminado" o "Finalizado" | Pasa |
 
+### Paquete 4: Terminación de Contratos (CP-004)
+
+| ID | Descripción | Estado |
+|----|-------------|--------|
+| CP-004-01 | Verificar que se puede cambiar el estado de un contrato a "Terminado" | Pasa |
+| CP-004-02 | Verificar que se registra correctamente la fecha y el motivo de la terminación | Pasa |
+| CP-004-03 | Verificar que no se puede terminar un contrato que ya ha finalizado | Pasa |
+
 ## Estructura del Proyecto
 app/
 ├── Models/
 │ ├── Collaborator.php
 │ ├── Contract.php
-│ └── ContractExtension.php
+│ ├── ContractExtension.php
+│ └── ContractTermination.php
 ├── Services/
 │ ├── CollaboratorService.php
 │ ├── ContractService.php
-│ └── ContractExtensionService.php
+│ ├── ContractExtensionService.php
+│ └── ContractTerminationService.php
 └── Exceptions/
 ├── DuplicateDocumentException.php
 ├── CollaboratorNotFoundException.php
-└── InvalidContractStatusException.php
+├── InvalidContractStatusException.php
+└── ContractAlreadyFinishedException.php
 
 database/
 ├── migrations/
 │ ├── [fecha]_create_collaborators_table.php
 │ ├── [fecha]_create_contracts_table.php
-│ └── [fecha]_create_contract_extensions_table.php
+│ ├── [fecha]_create_contract_extensions_table.php
+│ └── [fecha]_create_contract_terminations_table.php
 ├── factories/
 │ ├── CollaboratorFactory.php
 │ ├── ContractFactory.php
-│ └── ContractExtensionFactory.php
+│ ├── ContractExtensionFactory.php
+│ └── ContractTerminationFactory.php
 └── seeders/
 ├── CollaboratorSeeder.php
 ├── ContractSeeder.php
@@ -80,16 +97,19 @@ tests/
 │ ├── Models/
 │ │ ├── CollaboratorTest.php
 │ │ ├── ContractTest.php
-│ │ └── ContractExtensionTest.php
+│ │ ├── ContractExtensionTest.php
+│ │ └── ContractTerminationTest.php
 │ └── Services/
 │ ├── CollaboratorServiceTest.php
 │ ├── ContractServiceTest.php
-│ └── ContractExtensionServiceTest.php
+│ ├── ContractExtensionServiceTest.php
+│ └── ContractTerminationServiceTest.php
 ├── Feature/
 │ └── Services/
 │ ├── CollaboratorServiceTest.php
 │ ├── ContractServiceTest.php
-│ └── ContractExtensionServiceTest.php
+│ ├── ContractExtensionServiceTest.php
+│ └── ContractTerminationServiceTest.php
 └── TestCase.php
 
 text
@@ -97,6 +117,13 @@ text
 ## Modelo de Datos
 
 ### Tablas Principales
+
+**users** (Gestionada por Laravel)
+- id (PK)
+- name
+- email (unique)
+- password
+- timestamps
 
 **collaborators**
 - id (PK)
@@ -130,7 +157,7 @@ text
 - description
 - created_at
 
-**contract_terminations** (próximo paquete)
+**contract_terminations**
 - id (PK)
 - contract_id (FK a contracts.id, one-to-one)
 - termination_date
@@ -142,6 +169,7 @@ text
 - Un **Contract** pertenece a un **Collaborator**.
 - Un **Contract** puede tener muchas **Contract_Extensions**.
 - Un **Contract** puede tener una **Contract_Termination**.
+- Un **User** tiene un rol (gestionado por `spatie/laravel-permission`).
 
 ## Requisitos Previos
 
@@ -180,8 +208,10 @@ php artisan test --filter Contract
 
 # Paquete 3: Prórrogas
 php artisan test --filter Extension
-Resultados de las pruebas
 
+# Paquete 4: Terminaciones
+php artisan test --filter ContractTerminationTest
+Resultados de las pruebas
 Paquete 1 - Colaboradores:
 
 text
@@ -203,6 +233,12 @@ text
 ✓ prueba verificar que se puede añadir una prórroga en tiempo o valor a un contrato de tipo fijo o prestación de servicios
 ✓ prueba verificar que la fecha de finalización del contrato se actualiza correctamente al añadir una prórroga de tiempo
 ✓ prueba verificar que el sistema rechaza una prórroga para un contrato con estado terminado o finalizado
+Paquete 4 - Terminaciones:
+
+text
+✓ prueba verificar que se puede cambiar el estado de un contrato a terminado
+✓ prueba verificar que se registra correctamente la fecha y el motivo de la terminación
+✓ prueba verificar que no se puede terminar un contrato que ya ha finalizado
 Comandos Útiles
 bash
 # Ejecutar tests y detenerse en el primer fallo
@@ -214,53 +250,51 @@ php artisan test --coverage
 # Ejecutar tests en paralelo
 php artisan test --parallel
 Flujo de Trabajo (Git Flow)
-El desarrollo sigue estrictamente el flujo de trabajo Git Flow:
+El desarrollo sigue estrictamente el flujo de trabajo Git Flow especificado en el PRD:
 
-main: Código de producción estable
+main: Código de producción estable.
 
-develop: Rama principal de desarrollo
+develop: Rama principal de desarrollo.
 
-feature/*: Ramas para nuevas funcionalidades
-
-release/*: Ramas para preparar lanzamientos
-
-hotfix/*: Ramas para correcciones urgentes
+feature/*: Ramas para nuevas funcionalidades.
 
 Convención de Commits
-Los mensajes de los commits siguen la especificación Conventional Commits:
+Los mensajes de los commits siguen la especificación Conventional Commits según el PRD:
 
 text
 feat(Collaborators): Implementa CRUD para Colaboradores con TDD
 test(contracts): agregar test para validación de fechas
 feat(extensions): implementar lógica de prórrogas de tiempo
+feat(terminations): implementar terminación de contratos
 refactor(extensions): extraer validaciones a métodos privados
 Entregables Finales
+Según lo especificado en el PRD, este repositorio incluye:
+
  Repositorio de GitHub completo
 
  Documentación de casos de prueba
 
  Seeders para poblar la base de datos con datos de ejemplo
 
-Próximos Pasos
-Este repositorio tiene tres paquetes completados y funcionando. El siguiente paquete a desarrollar será:
+Proyecto Completado
+Este repositorio tiene los cuatro paquetes completados y funcionando, cumpliendo con todos los casos de prueba especificados en el PRD:
 
-Paquete 4: Terminación de Contratos (CP-004)
-ID	Descripción	Estado
-CP-004-01	Verificar que se puede cambiar el estado de un contrato a "Terminado"	Pendiente
-CP-004-02	Verificar que se registra correctamente la fecha y el motivo de la terminación	Pendiente
-CP-004-03	Verificar que no se puede terminar un contrato que ya ha finalizado	Pendiente
-Flujo Principal:
+Paquete	Módulo	Estado
+CP-001	Gestión de Colaboradores	Completado
+CP-002	Gestión de Contratos	Completado
+CP-003	Gestión de Prórrogas	Completado
+CP-004	Terminación de Contratos	Completado
 
-El usuario localiza el contrato activo que desea terminar
+Autor
+Jorge Alberto Ballestas Morales
 
-Selecciona la opción "Terminación Anticipada"
+Perfil: Estudiante de Análisis y Desarrollo de Software - SENA
 
-El sistema solicita la fecha de terminación y un campo para justificar el motivo
+Correo Electrónico: ballestasjorge66@gmail.com
 
-El usuario confirma la acción
-
-El sistema actualiza el estado del contrato a "Terminado" y guarda la información de la terminación
+Licencia
+Proyecto de uso académico y educativo.
 
 Tech Solutions SAS © 2026
-*Paquetes 1, 2 y 3: Colaboradores, Contratos y Prórrogas - Completados*
+*Paquetes 1, 2, 3 y 4: Colaboradores, Contratos, Prórrogas y Terminaciones - Completados*
 Versión: 1.1 | Fecha: 12 de Febrero de 2026

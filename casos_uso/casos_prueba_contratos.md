@@ -1,6 +1,5 @@
 # Casos de Prueba -- Gestión de Contratos
 
-
 ## Caso 1: Crear un Contrato con Datos Válidos
 
 ### 1. ID del Caso de Prueba
